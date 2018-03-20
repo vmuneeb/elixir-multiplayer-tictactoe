@@ -1,0 +1,21 @@
+/* This file is for your main application css. */
+
+.game-box,.chat-box {
+	border: 1px solid grey;
+}
+
+.block{
+	margin:10px;
+	height: 100px;
+	background-color: grey;
+	color: white;
+	font-size: 30px;
+	font-weight: bolder;
+	text-align: center;
+	vertical-align: middle;
+	line-height: 90px;       /* the same as your div height */
+}
+
+.my-mark {
+	color: green;
+}
