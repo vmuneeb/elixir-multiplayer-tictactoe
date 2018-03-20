@@ -1,21 +1,51 @@
 /* This file is for your main application css. */
 
+body {
+	background-color: #f8f8f8
+}
+
 .game-box,.chat-box {
 	border: 1px solid grey;
 }
 
 .block{
-	margin:10px;
-	height: 100px;
-	background-color: grey;
+	margin:2px;
+	border-radius: 4px;
+	height: 120px;
+	background-color: #14bdac;
 	color: white;
-	font-size: 30px;
+	font-size: 48px;
 	font-weight: bolder;
 	text-align: center;
 	vertical-align: middle;
-	line-height: 90px;       /* the same as your div height */
+	line-height: 115px;       /* the same as your div height */
 }
 
 .my-mark {
-	color: green;
+	color: #333;
+}
+
+.chat {
+ margin-top: 0em;
+}
+.chat-room {
+ margin-top: 1em;
+}
+.panel-messages, .panel-users {
+ height: 400px;
+}
+#chat-messages {
+ min-height: 400px;
+ overflow-y: scroll;
+}
+
+.success {
+  background-color: green;
+  padding: 3px;
+}
+
+.error {
+  background-color: red;
+  color: white;
+  padding: 3px;
 }

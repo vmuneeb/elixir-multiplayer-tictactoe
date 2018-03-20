@@ -7,14 +7,14 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title><%= title("New Title") %></title>
+    <title><%= title("Elixir TicTacToe") %></title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
   </head>
 
   <body>
     <div class="container">
       <header class="header"> 
-        <h3 class="text-center"  id="title">TicTacToe</h3>
+        <div class="text-center"  id="title"></div>
       </header>
 
       <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>

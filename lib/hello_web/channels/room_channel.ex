@@ -72,4 +72,10 @@ defmodule HelloWeb.RoomChannel do
     {:noreply, socket}
   end
 
+  def handle_in("message:new", payload, socket) do
+    broadcast! socket, "message:new", %{user: payload["user"],  
+                                      message: payload["message"]}
+  {:noreply, socket}
+end
+
 end

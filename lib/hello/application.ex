@@ -9,7 +9,7 @@ defmodule Hello.Application do
     # Define workers and child supervisors to be supervised
     children = [
       # Start the Ecto repository
-      supervisor(Hello.Repo, []),
+      # supervisor(Hello.Repo, []),
       # Start the endpoint when the application starts
       supervisor(HelloWeb.Endpoint, []),
       supervisor(HelloWeb.Presence, []),

@@ -60,17 +60,32 @@ var data = {
     room: "ASDF"
 }
 let socket = new Socket("/socket", { params: { user_id: data.userId } })
+let message = $('#message-input')
+let chatMessages = document.getElementById("chat-messages")
+let title = document.getElementById("title")
 
 $(document).ready(function() {
 
 
-    console.log("Active is : " + window.active)
-    document.getElementById("title").innerHTML = "USER ID : " + data.userId;
+    //document.getElementById("title").innerHTML = "USER ID : " + data.userId;
     data.room = document.getElementById("game").innerHTML
 
     console.log("Joining room " + data.room + " as user :" + data.userId)
 
     let presences = {}
+    message.focus();
+    let nickName = data.userId
+
+    message.on('keypress', event => {
+        if (event.keyCode == 13) {
+            channel.push('message:new', {
+                message: message.val(),
+                user: nickName
+            })
+            message.val("")
+        }
+    });
+
 
 
 
@@ -95,10 +110,29 @@ $(document).ready(function() {
 
 
     channel.join()
-        .receive("ok", resp => { console.log("Joined successfully", resp) })
-        .receive("error", resp => { console.log("Unable to join", resp) })
+        .receive("ok", resp => {
+            showMessage("Joined successfully. Waiting for Player 2<br> <span>Open this link in a different tab/browser or share this URL with your friend</span>", "success")
+            console.log("Joined successfully", resp)
+        })
+        .receive("error", resp => {
+            showMessage("Error joining game", "waring")
+            console.log("Unable to join", resp)
+        })
 
     let onlineUsers
+
+    channel.on('message:new', payload => {
+        let template = document.createElement("div");
+        if (payload.user == nickName)
+            payload.user = "You"
+        else
+            payload.user = "Player 2"
+
+        template.innerHTML = `<b>${payload.user}</b>: 
+                           ${payload.message}<br>`
+        chatMessages.appendChild(template);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    })
 
 
     channel.on("presence_state", state => {
@@ -110,20 +144,26 @@ $(document).ready(function() {
     })
 
     channel.on("next_move", function(message) {
+        var msg = "";
+        if(message.position == 10) {
+            msg = "Player 2 Joined","success";
+        }
         if (message.user === data.userId) {
+            showMessage(msg+ ", Your turn","success")
             $(".block").eq(message.position).html("O");
-            console.log("Got approval for next move")
             window.active = true;
         } else {
-            console.log("Got approval for other guy " + message.user + " and our user_id = " + data.userId)
+            showMessage("Wait, Player 2's turn","danger")
         }
     })
 
     channel.on("won", function(message) {
         if (message.user === data.userId) {
             alert("You win!!!")
+            showMessage("You win","success")
         } else {
-        	$(".block").eq(message.position).html("O");
+            $(".block").eq(message.position).html("O");
+            showMessage("You lose!!","danger")
             alert("You lose!!")
         }
     })
@@ -137,10 +177,18 @@ $(document).ready(function() {
     // detect if user has left from all tabs/devices, or is still present
     let onLeave = (id, current, leftPres) => {
         console.log("user left")
+         showMessage("Player left. Game over!!. <a href='/'> click here to start a new game</a>","danger")
+         socket.disconnect();
     }
 })
 
 
+function showMessage(message, type) {
+    var className = "alert alert-"+type
+    var div= "<div class='"+className+"'>"+message+"</div>"
+    title.innerHTML =  div;
+    //chatMessages.scrollTop = chatMessages.scrollHeight;
+}
 
 
 function makeUuid(length) {
