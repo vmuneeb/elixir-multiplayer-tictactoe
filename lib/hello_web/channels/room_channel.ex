@@ -68,13 +68,13 @@ defmodule HelloWeb.RoomChannel do
 
   def handle_info({:won,room,user,position}, socket) do
     broadcast! socket, "won", %{"position"=> position,"user" => user}
-    Chat.Registry.unregister_name(room)
+    Chat.Server.stop(room)
     {:noreply, socket}
   end
 
   def handle_info({:game_over,room,user,position}, socket) do
     broadcast! socket, "game_over",  %{"position"=> position,"user" => user}
-    Chat.Registry.unregister_name(room)
+    Chat.Server.stop(room)
     {:noreply, socket}
   end
 

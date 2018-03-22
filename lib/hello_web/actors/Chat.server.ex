@@ -21,6 +21,10 @@ defmodule Chat.Server do
     GenServer.call(via_tuple(room_name), {:next_user})
   end
 
+  def stop(room_name) do
+    GenServer.call(via_tuple(room_name), {:exit})
+  end
+
   defp via_tuple(room_name) do
     # And the tuple always follow the same format:
     # {:via, module_name, term}
@@ -37,6 +41,10 @@ defmodule Chat.Server do
             6 => "-", 7 => "-", 8 => "-"}
       map = %{:users => [user],:active => user, :board => board }
     {:ok, map}
+  end
+
+  def handle_call({:exit},_from, map) do
+    {:stop, :normal, map, map}
   end
 
   def handle_call({:make_move, user,position},_from, map) do
