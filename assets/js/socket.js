@@ -145,25 +145,35 @@ $(document).ready(function() {
 
     channel.on("next_move", function(message) {
         var msg = "";
-        if(message.position == 10) {
-            msg = "Player 2 Joined","success";
+        if (message.position == 10) {
+            msg = "Player 2 Joined", "success";
         }
         if (message.user === data.userId) {
-            showMessage(msg+ ", Your turn","success")
+            showMessage(msg + ", Your turn", "success")
             $(".block").eq(message.position).html("O");
             window.active = true;
         } else {
-            showMessage("Wait, Player 2's turn","danger")
+            showMessage("Wait, Player 2's turn", "danger")
         }
+    })
+
+    channel.on("game_over", function(message) {
+
+        if (message.user != data.userId) {
+            $(".block").eq(message.position).html("O");
+        }
+
+        alert("No possible moves. Game over!!!")
+        showMessage("Game over", "danger")
     })
 
     channel.on("won", function(message) {
         if (message.user === data.userId) {
             alert("You win!!!")
-            showMessage("You win","success")
+            showMessage("You win", "success")
         } else {
             $(".block").eq(message.position).html("O");
-            showMessage("You lose!!","danger")
+            showMessage("You lose!!", "danger")
             alert("You lose!!")
         }
     })
@@ -177,16 +187,16 @@ $(document).ready(function() {
     // detect if user has left from all tabs/devices, or is still present
     let onLeave = (id, current, leftPres) => {
         console.log("user left")
-         showMessage("Player left. Game over!!. <a href='/'> click here to start a new game</a>","danger")
-         socket.disconnect();
+        showMessage("Player left. Game over!!. <a href='/'> click here to start a new game</a>", "danger")
+        socket.disconnect();
     }
 })
 
 
 function showMessage(message, type) {
-    var className = "alert alert-"+type
-    var div= "<div class='"+className+"'>"+message+"</div>"
-    title.innerHTML =  div;
+    var className = "alert alert-" + type
+    var div = "<div class='" + className + "'>" + message + "</div>"
+    title.innerHTML = div;
     //chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 

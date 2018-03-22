@@ -11,15 +11,16 @@ defmodule Hello.Application do
       # Start the Ecto repository
       # supervisor(Hello.Repo, []),
       # Start the endpoint when the application starts
-      supervisor(HelloWeb.Endpoint, []),
-      supervisor(HelloWeb.Presence, []),
+       supervisor(HelloWeb.Endpoint, []),
+       supervisor(HelloWeb.Presence, []),
       # Start your own worker by calling: Hello.Worker.start_link(arg1, arg2, arg3)
       # worker(Hello.Worker, [arg1, arg2, arg3]),
     ]
-    HelloWeb.GameRegistery.start_link
+    Chat.Registry.start_link()
+    Chat.Supervisor.start_link()
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Hello.Supervisor]
+     opts = [strategy: :one_for_one, name: Hello.Supervisor]
     Supervisor.start_link(children, opts)
   end
 
