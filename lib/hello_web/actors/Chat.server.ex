@@ -1,5 +1,6 @@
 defmodule Chat.Server do
   use GenServer
+  require Logger
 
   # API
 
@@ -8,9 +9,11 @@ defmodule Chat.Server do
   end
 
   def add_user(room_name, user) do
-    # And the `GenServer` callbacks will accept this tuple the 
-    # same way it accepts a pid or an atom.
     GenServer.call(via_tuple(room_name), {:add_user, user})
+  end
+
+  def is_member(room_name, user) do
+    GenServer.call(via_tuple(room_name), {:is_member, user})
   end
 
   def make_move(room_name,user,position) do
@@ -43,8 +46,7 @@ defmodule Chat.Server do
      board = Map.get(map,:board)
      active = Map.get(map,:active)     
      next_user = Map.get(map,:users) -- [active] |> hd
-     IO.puts "user "<>user <> " active "<>active <>" next user: "<>next_user
-     IO.puts "board[position] "<>board[position]
+     Logger.info "user "<>user <> " active "<>active <>" next user: "<>next_user
      if user == active and board[position] == "-" do
         board = put_in(board[position],user)
         map = Map.put(map,:board,board) 
@@ -62,6 +64,10 @@ defmodule Chat.Server do
       end      
   end
 
+  def handle_call({:is_member, user},_from, map) do
+     {:reply, Enum.member?(Map.get(map,:users),user),map}
+  end
+
   def handle_call({:add_user, user},_from, map) do
     if (length(Map.get(map,:users)) < 2) and !Enum.member?(Map.get(map,:users), user) do
       list = Map.get(map,:users) ++ [user]
@@ -69,9 +75,9 @@ defmodule Chat.Server do
       if Map.get(map,:active) == nil do
         map = Map.put(map,:active,user)
       end
-      {:reply, true,map}
+      {:reply, :ok,map}
     else
-      {:reply, false,map}  
+      {:reply, :error,map}  
     end
   end
 

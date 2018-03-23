@@ -111,7 +111,7 @@ $(document).ready(function() {
 
     channel.join()
         .receive("ok", resp => {
-            showMessage("Joined successfully. Waiting for Player 2<br> <span>Open this link in a different tab/browser or share this URL with your friend</span>", "success")
+            showMessage("Joined successfully. Waiting for Player 2<br> <span><a href='/'> click here to open new tab</a> or open this URL from different browser</span>", "success")
             console.log("Joined successfully", resp)
         })
         .receive("error", resp => {
@@ -120,6 +120,8 @@ $(document).ready(function() {
         })
 
     let onlineUsers
+    let spectator = false;
+    let current_mark = "<span class='mark-1'>X</span>"
 
     channel.on('message:new', payload => {
         let template = document.createElement("div");
@@ -152,8 +154,11 @@ $(document).ready(function() {
             showMessage(msg + ", Your turn", "success")
             $(".block").eq(message.position).html("O");
             window.active = true;
-        } else {
+        } else if(!spectator) {
             showMessage("Wait, Player 2's turn", "danger")
+        } else {    
+            $(".block").eq(message.position).html(current_mark);
+            current_mark = current_mark == "<span class='mark-1'>X</span>" ? "<span class='mark-2'>O</span>" : "<span class='mark-1'>X</span>"
         }
     })
 
@@ -167,14 +172,31 @@ $(document).ready(function() {
         showMessage("Game over", "danger")
     })
 
+    channel.on("room_full", function(message) {
+        if (message.user == data.userId) {
+            spectator = true;
+            showMessage("Game already started. But you can watch it here", "danger")
+        }
+    })
+
+    channel.on("player_left", function(message) {
+        showMessage("Player left. Game over!!. <a href='/'> click here to start a new game</a>", "danger")
+        socket.disconnect();
+    })
+
     channel.on("won", function(message) {
         if (message.user === data.userId) {
             alert("You win!!!")
             showMessage("You win", "success")
         } else {
-            $(".block").eq(message.position).html("O");
-            showMessage("You lose!!", "danger")
-            alert("You lose!!")
+            if(!spectator) {
+                $(".block").eq(message.position).html("O");
+                showMessage("You lose!!", "danger")
+                alert("You lose!!")
+            } else {
+                 $(".block").eq(message.position).html(current_mark);
+                 showMessage("Game Over", "danger")
+            }
         }
     })
 
@@ -187,8 +209,8 @@ $(document).ready(function() {
     // detect if user has left from all tabs/devices, or is still present
     let onLeave = (id, current, leftPres) => {
         console.log("user left")
-        showMessage("Player left. Game over!!. <a href='/'> click here to start a new game</a>", "danger")
-        socket.disconnect();
+        // showMessage("Player left. Game over!!. <a href='/'> click here to start a new game</a>", "danger")
+        // socket.disconnect();
     }
 })
 
