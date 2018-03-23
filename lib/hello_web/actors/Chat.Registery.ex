@@ -68,7 +68,6 @@ defmodule Chat.Registry do
     # When a monitored process dies, we will receive a
     # `:DOWN` message that we can use to remove the 
     # dead pid from our registry.
-    IO.puts "Process died"
     {:noreply, remove_pid(state, pid)}
   end
 

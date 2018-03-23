@@ -6,11 +6,10 @@ defmodule HelloWeb.RoomChannel do
   	IO.puts("Joining " <> room)
   	send(self(), :after_join)
   	user = socket.assigns.user_id  
-    IO.puts "where is :"  
-    IO.inspect Chat.Registry.whereis_name({:game_name,room})
     if Chat.Registry.whereis_name({:game_name,room}) == :undefined do
       IO.puts "creating room"
-      Chat.Supervisor.start_room(room,user)
+      Chat.Supervisor.start_room(room)
+      Chat.Server.add_user(room,user)
     else
       IO.puts "room "<>room<>" exist. Adding user"<>user
       Chat.Server.add_user(room,user)
@@ -40,16 +39,6 @@ defmodule HelloWeb.RoomChannel do
         _ -> 
            IO.puts "do nothing"        
     end
-
-    # {status,won,next_user} = Chat.Server.make_move(room,user,position)
-    # IO.inspect {status,won,next_user}
-    # if status do
-    #   if won do
-    #     send(self(), {:won,room,user,position})
-    #   else
-    #     send(self(), {:next_move,room,next_user,position})
-    #   end
-    # end
     {:noreply, socket}
   end
 
@@ -61,20 +50,21 @@ defmodule HelloWeb.RoomChannel do
     {:noreply, socket}
   end
 
-  def handle_info({:next_move,room,next_user,position}, socket) do
+  def handle_info({:next_move,_room,next_user,position}, socket) do
     broadcast! socket, "next_move", %{"position"=> position,"user" => next_user}
     {:noreply, socket}
   end
 
   def handle_info({:won,room,user,position}, socket) do
-    broadcast! socket, "won", %{"position"=> position,"user" => user}
-    Chat.Server.stop(room)
+    broadcast! socket, "won", %{"position"=> position,"user" => user} 
+    IO.inspect Chat.Registry.whereis_name({:game_name,room})
+    Chat.Supervisor.stop_room(room)  
     {:noreply, socket}
   end
-
+ 
   def handle_info({:game_over,room,user,position}, socket) do
     broadcast! socket, "game_over",  %{"position"=> position,"user" => user}
-    Chat.Server.stop(room)
+    Chat.Supervisor.stop_room(room)   
     {:noreply, socket}
   end
 

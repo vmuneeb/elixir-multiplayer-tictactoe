@@ -3,8 +3,8 @@ defmodule Chat.Server do
 
   # API
 
-  def start_link(name,user) do
-    GenServer.start_link(__MODULE__, user, name: via_tuple(name))
+  def start_link(name) do
+    GenServer.start_link(__MODULE__, [], name: via_tuple(name))
   end
 
   def add_user(room_name, user) do
@@ -21,10 +21,6 @@ defmodule Chat.Server do
     GenServer.call(via_tuple(room_name), {:next_user})
   end
 
-  def stop(room_name) do
-    GenServer.call(via_tuple(room_name), {:exit})
-  end
-
   defp via_tuple(room_name) do
     # And the tuple always follow the same format:
     # {:via, module_name, term}
@@ -33,18 +29,14 @@ defmodule Chat.Server do
 
   # SERVER
 
-  def init(user) do
-    IO.puts "Starting Chat server with user "<>user 
+
+  def init(_) do
     board = %{
             0 => "-", 1 => "-", 2 => "-",
             3 => "-", 4 => "-", 5 => "-",
             6 => "-", 7 => "-", 8 => "-"}
-      map = %{:users => [user],:active => user, :board => board }
+      map = %{:users => [],:active => nil, :board => board }
     {:ok, map}
-  end
-
-  def handle_call({:exit},_from, map) do
-    {:stop, :normal, map, map}
   end
 
   def handle_call({:make_move, user,position},_from, map) do
@@ -74,6 +66,9 @@ defmodule Chat.Server do
     if (length(Map.get(map,:users)) < 2) and !Enum.member?(Map.get(map,:users), user) do
       list = Map.get(map,:users) ++ [user]
       map = Map.put(map,:users,list)
+      if Map.get(map,:active) == nil do
+        map = Map.put(map,:active,user)
+      end
       {:reply, true,map}
     else
       {:reply, false,map}  
